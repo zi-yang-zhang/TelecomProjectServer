@@ -11,9 +11,7 @@ public class MultiThreadedServer{
     private static final int PORT = 5000;
     public MultiThreadedServer(Socket socket, int bucketSize, int leakRate) throws IOException {
         LeakyBucketSocket leakyBucketSocket = new LeakyBucketSocket(socket,bucketSize,leakRate);
-        ServerReceiverWorker serverReceiverWorker = new ServerReceiverWorker(socket);
-        serverReceiverWorker.registerCommandListener(leakyBucketSocket);
-        new Thread(serverReceiverWorker).start();
+
     }
 
 

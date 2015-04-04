@@ -22,12 +22,20 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
     private Socket socket;
     private int bucketSize;
     private int leakRate;
+    private Thread sourceThread;
+    private Thread receiverThread;
+    private ServerReceiverWorker serverReceiverWorker;
 
 
     public LeakyBucketSocket(Socket socket,int bucketSize, int leakRate){
         this.socket = socket;
         this.bucketSize = bucketSize;
         this.leakRate = leakRate;
+        serverReceiverWorker = new ServerReceiverWorker(socket);
+        serverReceiverWorker.registerCommandListener(this);
+        receiverThread = new Thread(serverReceiverWorker);
+        receiverThread.start();
+
     }
 
 
@@ -38,18 +46,22 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
 
     public void start() {
         System.out.println("Start sending data");
-        source.init();
+        sourceThread = new Thread(source);
+        sourceThread.start();
+
     }
 
-    public void stop() throws IOException {
+    public void stop() throws IOException, InterruptedException {
         source.terminate();
-        socket.close();
+        serverReceiverWorker.terminate();
+        receiverThread.join();
+        sourceThread.join();
     }
 
 
     @Override
-    public void onCommandReceived(RequestType type) throws IOException {
-        System.out.println("Command Received: " + type.toString());
+    public void onCommandReceived(RequestType type) throws IOException, InterruptedException {
+        System.out.println("\nCommand Received: " + type.toString());
         System.out.println("Command Code: " + type.getCommand());
         switch (type){
             case ConstantBitRate:

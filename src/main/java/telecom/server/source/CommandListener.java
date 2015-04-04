@@ -9,5 +9,5 @@ import java.io.IOException;
  */
 public interface CommandListener {
 
-    void onCommandReceived(RequestType type) throws IOException;
+    void onCommandReceived(RequestType type) throws IOException, InterruptedException;
 }

@@ -16,6 +16,8 @@ public class DecodeRequest {
                 return RequestType.Bursty;
             case 3:
                 return RequestType.BurstyWithLeakyBucket;
+            case 4:
+                return RequestType.Close;
             default:
                 return RequestType.Close;
         }

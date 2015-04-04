@@ -1,6 +1,7 @@
 package telecom.server;
 
 import telecom.server.protocol.DecodeRequest;
+import telecom.server.protocol.RequestType;
 import telecom.server.source.CommandListener;
 
 import java.io.DataInputStream;
@@ -31,11 +32,16 @@ public class ServerReceiverWorker implements Runnable {
             try {
                 InputStream inputStream = socket.getInputStream();
                 DataInputStream dataInputStream = new DataInputStream(inputStream);
-                commandListener.onCommandReceived(DecodeRequest.decode(dataInputStream.readByte()));
+                RequestType requestType = DecodeRequest.decode(dataInputStream.readByte());
+                commandListener.onCommandReceived(requestType);
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
         }
     }
+
+    public void terminate(){running = false;}
 }

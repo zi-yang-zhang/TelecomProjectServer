@@ -20,22 +20,21 @@ public class Bucket extends LinkedList<Byte> {
 
 
     public boolean fill(byte[] packet){
-        System.out.print("\r" + "Bucket capacity :" + ((double) size() / (double) bucketSize) * 100 + "%");
         for(byte p: packet){
             if(size() == bucketSize){
                 System.out.println("\n"+"Bucket full, discard further packets");
+
                 return false;
             }
             add(p);
         }
         return true;
-
     }
 
     public byte[] leak(){
         //System.out.print("Bucket leaking");
-        byte[] packet = new byte[leakRate];
-        for(int i = 0; i < leakRate;i++){
+        byte[] packet = new byte[leakRate/10];
+        for(int i = 0; i < leakRate/10;i++){
             try {
                 packet[i] = this.pop();
             } catch (NoSuchElementException e) {
@@ -45,8 +44,10 @@ public class Bucket extends LinkedList<Byte> {
         }
         //System.out.print("\r" + "Leaked: " + leakRate + " bytes");
         return packet;
-
     }
+
+
+    public int getBucketSize(){return bucketSize;}
 
 
 
