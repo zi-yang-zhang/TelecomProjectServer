@@ -8,10 +8,17 @@ import java.io.IOException;
 /**
  * Created by robertzhang on 2015-04-03.
  */
+
+/**
+ * GUI receiver worker of client to receive data stream from server.
+ */
 public class ClientReceiverGuiWorker extends SwingWorker<Void,Void> {
     private Client client;
     private volatile boolean running;
     public ClientReceiverGuiWorker(Client client){this.client = client;}
+    /**
+     * Constantly receive data stream from the server.
+     */
     @Override
     protected Void doInBackground() throws Exception {
 

@@ -9,12 +9,20 @@ import java.text.DecimalFormat;
 /**
  * Created by robertzhang on 2015-04-03.
  */
+
+/**
+ * Abstract server thread type defines basic scaffold of traffic source.
+ */
 public abstract class AbstractServerThread implements TrafficSource{
     protected Socket socket;
     protected volatile boolean running;
     protected long timeType;
 
     protected void setTimeType(long timeType){this.timeType = timeType;}
+
+    /**
+     * Send data packet according to traffic source type.
+     */
     @Override
     public void run() {
         running = true;
@@ -72,7 +80,7 @@ public abstract class AbstractServerThread implements TrafficSource{
         socket.close();
     }
 
-    public void printBucketCapacity(){
+    private void printBucketCapacity(){
         double percentageCapacity = ((double) ((LeakyBucketSocket) socket).getBucket().size()
                 / (double) ((LeakyBucketSocket) socket).getBucket().getBucketSize());
         updateProgress(percentageCapacity);

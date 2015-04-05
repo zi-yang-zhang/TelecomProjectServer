@@ -13,6 +13,10 @@ import java.text.DecimalFormat;
 /**
  * Created by robertzhang on 2015-03-30.
  */
+
+/**
+ * GUI implementation of client side
+ */
 public class ClientGui extends JFrame implements DataReceiverListener{
     private JButton connectButton;
     private JCheckBox leakyBucketCheckbox;

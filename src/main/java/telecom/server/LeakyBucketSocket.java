@@ -14,6 +14,10 @@ import java.net.Socket;
 /**
  * Created by robertzhang on 2015-03-27.
  */
+
+/**
+ * Wrapper class that encapsulates leaky bucket function into socket, activates as a worker thread.
+ */
 public class LeakyBucketSocket extends Socket implements CommandListener{
 
 
@@ -26,7 +30,13 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
     private Thread receiverThread;
     private ServerReceiverWorker serverReceiverWorker;
 
-
+    /**
+     * Wraps the socket with client connection with leaky bucket functionality, with defined bucket size and leak rate.
+     * Activate receiver thread that listens to command from client.
+     * @param socket Socket with client connection
+     * @param bucketSize Bucket size defined by the server.
+     * @param leakRate Leak rate of leaky bucket.
+     */
     public LeakyBucketSocket(Socket socket,int bucketSize, int leakRate){
         this.socket = socket;
         this.bucketSize = bucketSize;
@@ -43,7 +53,9 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         return  bucket;
     }
 
-
+    /**
+     * Starts a worker thread with specific source defined by the command from client.
+     */
     public void start() {
         System.out.println("Start sending data");
         sourceThread = new Thread(source);
@@ -51,6 +63,11 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
 
     }
 
+    /**
+     * Stops the worker thread and receiver thread.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void stop() throws IOException, InterruptedException {
         source.terminate();
         serverReceiverWorker.terminate();
@@ -58,7 +75,12 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         sourceThread.join();
     }
 
-
+    /**
+     * Decide which traffic source to use based on the command received from client.
+     * @param type Request type received.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public void onCommandReceived(RequestType type) throws IOException, InterruptedException {
         System.out.println("\nCommand Received: " + type.toString());
@@ -87,6 +109,10 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         start();
     }
 
+    /**
+     * Send data packets from leaky bucket.
+     * @throws IOException
+     */
     public void sendFromLeakyBucket() throws IOException {
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         outputStream.write(bucket.leak());

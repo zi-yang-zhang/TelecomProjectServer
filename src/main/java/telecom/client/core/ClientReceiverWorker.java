@@ -5,6 +5,10 @@ import java.io.IOException;
 /**
  * Created by robertzhang on 2015-03-30.
  */
+
+/**
+ * Receiver worker of client to receive data stream from server.
+ */
 public class ClientReceiverWorker implements Runnable{
 
     private Client client;
@@ -12,6 +16,10 @@ public class ClientReceiverWorker implements Runnable{
     public ClientReceiverWorker(Client client){
         this.client = client;
     }
+
+    /**
+     * Constantly receive data stream from the server, and updates the rate every second.
+     */
     @Override
     public void run() {
         running = true;

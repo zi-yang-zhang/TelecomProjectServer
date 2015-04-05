@@ -3,8 +3,16 @@ package telecom.server.protocol;
 /**
  * Created by robertzhang on 2015-03-29.
  */
-public class DecodeRequest {
 
+/**
+ * Request Type decoder to decode request from client
+ */
+public class DecodeRequest {
+    /**
+     * Decode the command received from client in byte into RequestType.
+     * @param request Request packet from Client.
+     * @return The specific RequestType represented by the request packet.
+     */
     public static RequestType decode(Byte request){
 
         switch (request.intValue()){

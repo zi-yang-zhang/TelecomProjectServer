@@ -7,6 +7,10 @@ import java.io.OutputStream;
 /**
  * Created by robertzhang on 2015-04-03.
  */
+
+/**
+ * Redirects the output stream to text area.
+ */
 public class TextAreaOutputStream extends OutputStream {
     private JTextArea textArea;
     public TextAreaOutputStream(JTextArea textArea){
