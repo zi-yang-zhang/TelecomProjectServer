@@ -25,12 +25,16 @@ public class UpdateGuiWorker extends SwingWorker<Void,Void> {
     @Override
     protected Void doInBackground() throws Exception {
         running = true;
-        long time = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
+        long time = start;
+        client.notifyListener(0);
 
         while(running){
             long timedif = System.currentTimeMillis() - time;
-            if(timedif>1000){
-                client.notifyListener(timedif/1000);
+            long tottimedif = System.currentTimeMillis()-start;
+            if(timedif> 1000){
+                client.notifyListener(tottimedif/1000);
+                time = System.currentTimeMillis();
             }
         }
 
