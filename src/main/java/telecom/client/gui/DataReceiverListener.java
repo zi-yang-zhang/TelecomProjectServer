@@ -11,4 +11,5 @@ public interface DataReceiverListener {
 
     void onDataReceive(double dataLength);
     void onDataReceive(byte[] data);
+    void onClientClosed();
 }

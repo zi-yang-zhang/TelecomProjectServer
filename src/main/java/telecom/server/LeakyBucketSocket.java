@@ -44,6 +44,7 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         serverReceiverWorker = new ServerReceiverWorker(socket);
         serverReceiverWorker.registerCommandListener(this);
         receiverThread = new Thread(serverReceiverWorker);
+        receiverThread.setName("Receiver Thread"+receiverThread.hashCode());
         receiverThread.start();
 
     }
@@ -59,6 +60,7 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
     public void start() {
         System.out.println("Start sending data");
         sourceThread = new Thread(source);
+        sourceThread.setName("SourceThread"+sourceThread.hashCode());
         sourceThread.start();
 
     }
@@ -69,10 +71,15 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
      * @throws InterruptedException
      */
     public void stop() throws IOException, InterruptedException {
-        source.terminate();
         serverReceiverWorker.terminate();
-        receiverThread.join();
-        sourceThread.join();
+        source.terminate();
+
+
+
+        MultiThreadedServer.cancelThread();
+        MultiThreadedServer.displayThreadCount();
+
+
     }
 
     /**
@@ -88,17 +95,21 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         switch (type){
             case ConstantBitRate:
                 this.source = new ConstantBitRate(socket);
+                start();
                 break;
             case ConstantBitRateWithLeakyBucket:
                 bucket = new Bucket(bucketSize,leakRate);
                 this.source = new ConstantBitRate(this);
+                start();
                 break;
             case Bursty:
                 this.source = new Bursty(socket);
+                start();
                 break;
             case BurstyWithLeakyBucket:
                 bucket = new Bucket(bucketSize,leakRate);
                 this.source = new Bursty(this);
+                start();
                 break;
             case Close:
                 stop();
@@ -106,7 +117,7 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
 
         }
 
-        start();
+
     }
 
     /**

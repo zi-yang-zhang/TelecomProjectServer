@@ -34,7 +34,6 @@ public class Bucket extends LinkedList<Byte> {
     public boolean fill(byte[] packet){
         for(byte p: packet){
             if(size() == bucketSize){
-                System.out.println("\n"+"Bucket full, discard further packets");
 
                 return false;
             }

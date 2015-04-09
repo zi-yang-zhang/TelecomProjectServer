@@ -64,16 +64,9 @@ public class ClientGui extends JFrame implements DataReceiverListener{
             public void actionPerformed(ActionEvent e) {
                 client.setMode(getMode());
                 try {
-                    client.connect();
-                    client.sendCommand();
-                    receiverGuiWorker = new ClientReceiverGuiWorker(client);
-                    updateGuiWorker = new UpdateGuiWorker(client);
-                    updateGuiWorker.execute();
-                    receiverGuiWorker.execute();
-                    connectButton.setEnabled(false);
-                    disconnectButton.setEnabled(true);
+                    connect();
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    System.out.println("Connection refused");
                 }
             }
         });
@@ -81,13 +74,7 @@ public class ClientGui extends JFrame implements DataReceiverListener{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    receiverGuiWorker.terminate();
-                    receiverGuiWorker.cancel(true);
-                    updateGuiWorker.terminate();
-                    updateGuiWorker.cancel(true);
-                    contentTextArea.append("Connection closed\n");
-                    disconnectButton.setEnabled(false);
-                    connectButton.setEnabled(true);
+                    disconnect();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -125,6 +112,25 @@ public class ClientGui extends JFrame implements DataReceiverListener{
         }
     }
 
+    public void connect() throws IOException {
+        client.connect();
+        client.sendCommand();
+        receiverGuiWorker = new ClientReceiverGuiWorker(client);
+        updateGuiWorker = new UpdateGuiWorker(client);
+        updateGuiWorker.execute();
+        receiverGuiWorker.execute();
+        connectButton.setEnabled(false);
+        disconnectButton.setEnabled(true);
+    }
+    public void disconnect() throws IOException {
+        receiverGuiWorker.terminate();
+        receiverGuiWorker.cancel(true);
+        updateGuiWorker.terminate();
+        updateGuiWorker.cancel(true);
+        contentTextArea.append("Connection closed\n");
+        disconnectButton.setEnabled(false);
+        connectButton.setEnabled(true);
+    }
     @Override
     public void onDataReceive(double dataLength) {
         DecimalFormat df = new DecimalFormat("#.00");
@@ -136,5 +142,14 @@ public class ClientGui extends JFrame implements DataReceiverListener{
     public void onDataReceive(byte[] data) {
         System.out.println(data);
         sb.setValue(sb.getMaximum());
+    }
+
+    @Override
+    public void onClientClosed() {
+        try {
+            disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

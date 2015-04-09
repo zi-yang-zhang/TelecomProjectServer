@@ -26,7 +26,9 @@ public class ConstantBitRate extends AbstractServerThread{
     @Override
     public synchronized void send() throws IOException {
         if(socket instanceof LeakyBucketSocket){
-            ((LeakyBucketSocket) socket).getBucket().fill(CONSTANT_RATE_PACKET);
+            if(!((LeakyBucketSocket) socket).getBucket().fill(CONSTANT_RATE_PACKET)){
+                System.out.println("\nThread " +hashCode()+": Bucket full, discard further packets");
+            }
         }else{
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
             outputStream.write(CONSTANT_RATE_PACKET);

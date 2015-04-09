@@ -1,6 +1,7 @@
 package telecom.server.source;
 
 import telecom.server.LeakyBucketSocket;
+import telecom.server.MultiThreadedServer;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -32,7 +33,7 @@ public abstract class AbstractServerThread implements TrafficSource{
         try {
             send();
             if(socket instanceof LeakyBucketSocket){
-                System.out.println("Bucket capacity :");
+
                 ((LeakyBucketSocket) socket).sendFromLeakyBucket();
             }
         } catch (IOException e) {
@@ -64,7 +65,10 @@ public abstract class AbstractServerThread implements TrafficSource{
                     leakTime = System.currentTimeMillis();
                 }
                 if(refreshTimeDif > 1000){
+
                     printBucketCapacity();
+
+
                     refreshTime = System.currentTimeMillis();
                 }
 
@@ -76,20 +80,24 @@ public abstract class AbstractServerThread implements TrafficSource{
 
 
     public void terminate() throws IOException {
-        this.running = false;
+        running = false;
         socket.close();
     }
 
     private void printBucketCapacity(){
         double percentageCapacity = ((double) ((LeakyBucketSocket) socket).getBucket().size()
                 / (double) ((LeakyBucketSocket) socket).getBucket().getBucketSize());
-        updateProgress(percentageCapacity);
+        if(MultiThreadedServer.getThreadCount()==1){
+            updateProgress(percentageCapacity);
+        }else{
+            updateCapacity(percentageCapacity);
+        }
     }
 
     private void updateProgress(double progressPercentage) {
         final int width = 50; // progress bar width in chars
 
-        System.out.print("\r[");
+        System.out.print("\rThread " + this.hashCode() + ": [");
         int i = 0;
         for (; i <= (int)(progressPercentage*width); i++) {
             System.out.print("=");
@@ -99,6 +107,11 @@ public abstract class AbstractServerThread implements TrafficSource{
         }
 
         DecimalFormat df = new DecimalFormat("#.00");
-        System.out.print("]"+df.format(progressPercentage*100)+"%");
+        System.out.print("]" + df.format(progressPercentage * 100) + "%");
+    }
+    private void updateCapacity(double progressPercentage){
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        System.out.println("Thread " + this.hashCode() + ": Bucket capacity: " + df.format(progressPercentage * 100) + "%");
     }
 }

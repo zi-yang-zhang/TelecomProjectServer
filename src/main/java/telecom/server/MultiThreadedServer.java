@@ -13,6 +13,7 @@ import java.net.Socket;
  */
 public class MultiThreadedServer{
     private static final int PORT = 5000;
+    public static int threadCount = 0;
     public MultiThreadedServer(Socket socket, int bucketSize, int leakRate) throws IOException {
         new LeakyBucketSocket(socket,bucketSize,leakRate);
 
@@ -32,7 +33,9 @@ public class MultiThreadedServer{
             Socket socket = serverSocket.accept();
             System.out.println("Connected");
             try {
+                addThread();
                 new MultiThreadedServer(socket,Integer.valueOf(args[0]),Integer.valueOf(args[1]));
+                displayThreadCount();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NumberFormatException e) {
@@ -44,5 +47,11 @@ public class MultiThreadedServer{
             }
 
         }
+    }
+
+    public static synchronized void addThread(){threadCount++;}
+    public static synchronized void cancelThread(){if(threadCount>0)threadCount--;}
+    public static synchronized int getThreadCount(){return threadCount;}
+    public static synchronized void displayThreadCount(){ System.out.println("Active instance: "+threadCount);
     }
 }

@@ -27,7 +27,11 @@ public class Bursty extends AbstractServerThread{
     @Override
     public synchronized void send() throws IOException {
         if(socket instanceof LeakyBucketSocket){
-            ((LeakyBucketSocket) socket).getBucket().fill(BURSTY_PACKET);
+            if(!((LeakyBucketSocket) socket).getBucket().fill(BURSTY_PACKET)){
+
+                System.out.println("\nThread " +hashCode()+": Bucket full, discard further packets");
+            }
+
         }else{
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
             outputStream.write(BURSTY_PACKET);

@@ -18,7 +18,7 @@ import java.net.Socket;
  */
 public class ServerReceiverWorker implements Runnable {
     private Socket socket;
-    private boolean running;
+    private volatile boolean running;
     private CommandListener commandListener;
     public ServerReceiverWorker(Socket socket){
         this.socket = socket;

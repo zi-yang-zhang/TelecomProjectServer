@@ -78,6 +78,9 @@ public class Client {
         InputStream inputStream = socket.getInputStream();
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         int byteRead = dataInputStream.read(data);
+        if(byteRead == -1){
+            dataReceiverListener.onClientClosed();
+        }
         totalBytes = totalBytes + byteRead;
         dataReceiverListener.onDataReceive(data);
         return  byteRead;
