@@ -73,12 +73,14 @@ public class ConnectionPanel extends JPanel implements DataReceiverListener{
         connectionTypePanel.add(connectionType);
         this.add(connectionTypePanel);
         receiveRateText  = new JTextArea(1,10);
+        receiveRateText.setEditable(false);
         JPanel receiveRatePanel = new JPanel();
         receiveRatePanel.setLayout(subPanelLayout);
         receiveRatePanel.add(receiveRateLabel);
         receiveRatePanel.add(receiveRateText);
         this.add(receiveRatePanel);
         totalDataText   = new JTextArea(1,10);
+        receiveRateText.setEditable(false);
         JPanel totalDataPanel = new JPanel();
         totalDataPanel.setLayout(subPanelLayout);
         totalDataPanel.add(totalDataLabel);

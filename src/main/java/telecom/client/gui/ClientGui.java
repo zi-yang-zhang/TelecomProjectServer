@@ -3,6 +3,7 @@ package telecom.client.gui;
 import telecom.protocol.RequestType;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.AbstractMap;
@@ -25,6 +26,7 @@ public class ClientGui extends JFrame {
     private ButtonGroup radioButtonGroup;
 
     private JButton addConnectionButton;
+    private JScrollPane contentScrollPanel;
     private JPanel contentPanel;
     private ArrayList<AbstractMap.SimpleEntry<String,ConnectionPanel>> connectionPanels;
     private int ID;
@@ -36,6 +38,7 @@ public class ClientGui extends JFrame {
         setContentPane(rootPanel);
         connectionPanels  = new ArrayList<>();
         init();
+
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,20 +49,28 @@ public class ClientGui extends JFrame {
         radioButtonGroup.add(constantRateRadioButton);
         radioButtonGroup.add(burstyTypeRadioButton);
         burstyTypeRadioButton.setSelected(true);
+
         addConnectionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                contentPanel.setLayout(new BoxLayout(contentPanel, 1));
+
                 ID++;
                 AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(ID,new ConnectionPanel(ID, getMode()));
-                connectionPanels.add(entry);
-                for(AbstractMap.SimpleEntry panelEntry:connectionPanels){
-                    contentPanel.add((ConnectionPanel)panelEntry.getValue());
-                }
-                contentPanel.repaint();
-                contentPanel.revalidate();
+                Container cont = new Container();
 
-                pack();
+                connectionPanels.add(entry);
+                for (AbstractMap.SimpleEntry panelEntry:connectionPanels){
+                    cont.add((ConnectionPanel) panelEntry.getValue());
+                }
+                cont.setLayout(new BoxLayout(cont, 1));
+                contentScrollPanel.setViewportView(cont);
+                contentScrollPanel.getVerticalScrollBar().setValue(contentScrollPanel.getVerticalScrollBar().getMaximum());
+                contentScrollPanel.repaint();
+                contentScrollPanel.revalidate();
+                if(ID == 1){
+                    pack();
+                }
+
 
 
             }
@@ -94,7 +105,7 @@ public class ClientGui extends JFrame {
             if(panelEntry.getKey().equals(Integer.valueOf(ID))){
                 connectionPanels.remove(panelEntry);
                 this.ID--;
-                pack();
+
                 break;
             }
         }
