@@ -1,14 +1,12 @@
 package telecom.client.gui;
 
-import telecom.client.core.Client;
 import telecom.server.protocol.RequestType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.text.DecimalFormat;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 
 /**
  * Created by robertzhang on 2015-03-30.
@@ -17,39 +15,31 @@ import java.text.DecimalFormat;
 /**
  * GUI implementation of client side
  */
-public class ClientGui extends JFrame implements DataReceiverListener{
-    private JButton connectButton;
+public class ClientGui extends JFrame {
+
     private JCheckBox leakyBucketCheckbox;
     private JRadioButton burstyTypeRadioButton;
     private JRadioButton constantRateRadioButton;
-    private JTextArea receiveRateText;
-    private JTextArea totalDataText;
     private JPanel rootPanel;
-    private JButton disconnectButton;
-    private JTextArea contentTextArea;
-    private JButton clearButton;
-    private JScrollPane contentScrollPanel;
+
     private ButtonGroup radioButtonGroup;
-    private Client client;
-    private TextAreaOutputStream outputStream;
-    private ClientReceiverGuiWorker receiverGuiWorker;
-    private UpdateGuiWorker updateGuiWorker;
-    private JScrollBar sb;
-    private JLabel contentLabel;
-    private JLabel totalDataLabel;
-    private JLabel receiveRateLabel;
+
+    private JButton addConnectionButton;
+    private JPanel contentPanel;
+    private ArrayList<AbstractMap.SimpleEntry<String,ConnectionPanel>> connectionPanels;
+    private int ID;
+
 
     public ClientGui(){
-        client = new Client();
-        client.setServer("localhost", 5000);
-        client.registerListener(this);
-        outputStream = new TextAreaOutputStream(contentTextArea);
+        super("Bandwidth Tester Client");
+        ID = 0;
         setContentPane(rootPanel);
-        pack();
+        connectionPanels  = new ArrayList<>();
         init();
-        setSize(1000, 600);
+        pack();
+
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        System.setOut(new PrintStream(outputStream, true));
 
     }
 
@@ -58,39 +48,25 @@ public class ClientGui extends JFrame implements DataReceiverListener{
         radioButtonGroup.add(constantRateRadioButton);
         radioButtonGroup.add(burstyTypeRadioButton);
         burstyTypeRadioButton.setSelected(true);
-        disconnectButton.setEnabled(false);
-        connectButton.addActionListener(new ActionListener() {
+        addConnectionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.setMode(getMode());
-                try {
-                    connect();
-                } catch (IOException e1) {
-                    System.out.println("Connection refused");
+                contentPanel.setLayout(new BoxLayout(contentPanel, 1));
+                ID++;
+                AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(ID,new ConnectionPanel(ID, getMode()));
+                connectionPanels.add(entry);
+                for(AbstractMap.SimpleEntry panelEntry:connectionPanels){
+                    contentPanel.add((ConnectionPanel)panelEntry.getValue());
                 }
-            }
-        });
-        disconnectButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    disconnect();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        clearButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                contentTextArea.setText("");
-                receiveRateText.setText("");
-                totalDataText.setText("");
-            }
-        });
-        sb = contentScrollPanel.getVerticalScrollBar();
+
+                contentPanel.repaint();
+                contentPanel.revalidate();
+
+                ClientGui.this.pack();
 
 
+            }
+        });
     }
 
     public static void main(String[] args){
@@ -111,45 +87,13 @@ public class ClientGui extends JFrame implements DataReceiverListener{
             return constantRateRadioButton.isSelected()?RequestType.ConstantBitRate:RequestType.Bursty;
         }
     }
-
-    public void connect() throws IOException {
-        client.connect();
-        client.sendCommand();
-        receiverGuiWorker = new ClientReceiverGuiWorker(client);
-        updateGuiWorker = new UpdateGuiWorker(client);
-        updateGuiWorker.execute();
-        receiverGuiWorker.execute();
-        connectButton.setEnabled(false);
-        disconnectButton.setEnabled(true);
-    }
-    public void disconnect() throws IOException {
-        receiverGuiWorker.terminate();
-        receiverGuiWorker.cancel(true);
-        updateGuiWorker.terminate();
-        updateGuiWorker.cancel(true);
-        contentTextArea.append("Connection closed\n");
-        disconnectButton.setEnabled(false);
-        connectButton.setEnabled(true);
-    }
-    @Override
-    public void onDataReceive(double dataLength) {
-        DecimalFormat df = new DecimalFormat("#.00");
-        receiveRateText.setText(df.format(dataLength) + "Byte/s");
-        totalDataText.setText(client.getTotalBytes() + "Bytes");
-    }
-
-    @Override
-    public void onDataReceive(byte[] data) {
-        System.out.println(data);
-        sb.setValue(sb.getMaximum());
-    }
-
-    @Override
-    public void onClientClosed() {
-        try {
-            disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void removeEntry(String ID){
+        for(AbstractMap.SimpleEntry panelEntry:connectionPanels){
+            if(panelEntry.getKey().equals(Integer.valueOf(ID))){
+                connectionPanels.remove(panelEntry);
+                break;
+            }
         }
     }
+
 }

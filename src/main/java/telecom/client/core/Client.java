@@ -82,7 +82,6 @@ public class Client {
             dataReceiverListener.onClientClosed();
         }
         totalBytes = totalBytes + byteRead;
-        dataReceiverListener.onDataReceive(data);
         return  byteRead;
     }
 

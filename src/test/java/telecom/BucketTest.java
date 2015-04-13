@@ -1,9 +1,10 @@
-package telecom.server.test;
+package telecom;
 
 import telecom.server.leakyBucket.Bucket;
 import telecom.server.source.TrafficSource;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BucketTest {
 
