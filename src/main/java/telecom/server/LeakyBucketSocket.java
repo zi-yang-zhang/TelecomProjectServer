@@ -1,7 +1,7 @@
 package telecom.server;
 
+import telecom.protocol.RequestType;
 import telecom.server.leakyBucket.Bucket;
-import telecom.server.protocol.RequestType;
 import telecom.server.source.Bursty;
 import telecom.server.source.CommandListener;
 import telecom.server.source.ConstantBitRate;
@@ -30,6 +30,7 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
     private Thread receiverThread;
     private ServerReceiverWorker serverReceiverWorker;
 
+
     /**
      * Wraps the socket with client connection with leaky bucket functionality, with defined bucket size and leak rate.
      * Activate receiver thread that listens to command from client.
@@ -44,7 +45,7 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
         serverReceiverWorker = new ServerReceiverWorker(socket);
         serverReceiverWorker.registerCommandListener(this);
         receiverThread = new Thread(serverReceiverWorker);
-        receiverThread.setName("Receiver Thread"+receiverThread.hashCode());
+
         receiverThread.start();
 
     }
@@ -56,21 +57,24 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
 
     /**
      * Starts a worker thread with specific source defined by the command from client.
+     * @param clientID client ID received from the client
      */
-    public void start() {
-        System.out.println("Start sending data");
+    public void start(int clientID) {
+        System.out.println("Start sending data to client "+ clientID);
         sourceThread = new Thread(source);
-        sourceThread.setName("SourceThread"+sourceThread.hashCode());
+
         sourceThread.start();
 
     }
 
     /**
      * Stops the worker thread and receiver thread.
+     * @param clientID client ID received from the client
      * @throws IOException
      * @throws InterruptedException
      */
-    public void stop() throws IOException, InterruptedException {
+    public void stop(int clientID) throws IOException, InterruptedException {
+        System.out.println("Instance terminated by client " + clientID);
         serverReceiverWorker.terminate();
         source.terminate();
 
@@ -85,34 +89,37 @@ public class LeakyBucketSocket extends Socket implements CommandListener{
     /**
      * Decide which traffic source to use based on the command received from client.
      * @param type Request type received.
+     * @param clientID client ID received from the client
      * @throws IOException
      * @throws InterruptedException
      */
     @Override
-    public void onCommandReceived(RequestType type) throws IOException, InterruptedException {
+    public void onCommandReceived(RequestType type, int clientID) throws IOException, InterruptedException {
         System.out.println("\nCommand Received: " + type.toString());
         System.out.println("Command Code: " + type.getCommand());
+        System.out.println("Client ID: " +clientID);
+
         switch (type){
             case ConstantBitRate:
-                this.source = new ConstantBitRate(socket);
-                start();
+                this.source = new ConstantBitRate(socket, clientID);
+                start(clientID);
                 break;
             case ConstantBitRateWithLeakyBucket:
                 bucket = new Bucket(bucketSize,leakRate);
-                this.source = new ConstantBitRate(this);
-                start();
+                this.source = new ConstantBitRate(this,clientID);
+                start(clientID);
                 break;
             case Bursty:
-                this.source = new Bursty(socket);
-                start();
+                this.source = new Bursty(socket, clientID);
+                start(clientID);
                 break;
             case BurstyWithLeakyBucket:
                 bucket = new Bucket(bucketSize,leakRate);
-                this.source = new Bursty(this);
-                start();
+                this.source = new Bursty(this,clientID);
+                start(clientID);
                 break;
             case Close:
-                stop();
+                stop(clientID);
                 break;
 
         }

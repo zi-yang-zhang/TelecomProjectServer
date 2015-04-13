@@ -18,6 +18,7 @@ public abstract class AbstractServerThread implements TrafficSource{
     protected Socket socket;
     protected volatile boolean running;
     protected long timeType;
+    protected int clientID = -1;
 
     protected void setTimeType(long timeType){this.timeType = timeType;}
 
@@ -75,7 +76,7 @@ public abstract class AbstractServerThread implements TrafficSource{
             }
 
         }
-        System.out.println("Connection closed");
+
     }
 
 
@@ -97,7 +98,7 @@ public abstract class AbstractServerThread implements TrafficSource{
     private void updateProgress(double progressPercentage) {
         final int width = 50; // progress bar width in chars
 
-        System.out.print("\rThread " + this.hashCode() + ": [");
+        System.out.print("\rThread sending to client" + clientID + ": [");
         int i = 0;
         for (; i <= (int)(progressPercentage*width); i++) {
             System.out.print("=");
@@ -112,6 +113,6 @@ public abstract class AbstractServerThread implements TrafficSource{
     private void updateCapacity(double progressPercentage){
         DecimalFormat df = new DecimalFormat("#.00");
 
-        System.out.println("Thread " + this.hashCode() + ": Bucket capacity: " + df.format(progressPercentage * 100) + "%");
+        System.out.println("Thread sending to client" + clientID + ": Bucket capacity: " + df.format(progressPercentage * 100) + "%");
     }
 }

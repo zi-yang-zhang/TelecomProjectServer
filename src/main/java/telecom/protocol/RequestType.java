@@ -1,4 +1,4 @@
-package telecom.server.protocol;
+package telecom.protocol;
 
 /**
  * Created by robertzhang on 2015-03-29.

@@ -15,8 +15,9 @@ import java.net.Socket;
  */
 public class Bursty extends AbstractServerThread{
 
-    public Bursty(Socket socket){
+    public Bursty(Socket socket, int clientID){
         this.socket = socket;
+        this.clientID = clientID;
         setTimeType(BURSTY_RATE_TIME);
     }
 

@@ -1,6 +1,6 @@
 package telecom.client.gui;
 
-import telecom.server.protocol.RequestType;
+import telecom.protocol.RequestType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 
 /**
- * GUI implementation of client side
+ * GUI implementation of client side, container for multiple client instances
  */
 public class ClientGui extends JFrame {
 
@@ -37,13 +37,11 @@ public class ClientGui extends JFrame {
         connectionPanels  = new ArrayList<>();
         init();
         pack();
-
-
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     }
 
-    public void init(){
+    private void init(){
         radioButtonGroup = new ButtonGroup();
         radioButtonGroup.add(constantRateRadioButton);
         radioButtonGroup.add(burstyTypeRadioButton);
@@ -58,11 +56,10 @@ public class ClientGui extends JFrame {
                 for(AbstractMap.SimpleEntry panelEntry:connectionPanels){
                     contentPanel.add((ConnectionPanel)panelEntry.getValue());
                 }
-
                 contentPanel.repaint();
                 contentPanel.revalidate();
 
-                ClientGui.this.pack();
+                pack();
 
 
             }
@@ -87,10 +84,17 @@ public class ClientGui extends JFrame {
             return constantRateRadioButton.isSelected()?RequestType.ConstantBitRate:RequestType.Bursty;
         }
     }
+
+    /**
+     * Removes the entry from client instance list
+     * @param ID
+     */
     public void removeEntry(String ID){
         for(AbstractMap.SimpleEntry panelEntry:connectionPanels){
             if(panelEntry.getKey().equals(Integer.valueOf(ID))){
                 connectionPanels.remove(panelEntry);
+                this.ID--;
+                pack();
                 break;
             }
         }

@@ -14,8 +14,9 @@ import java.net.Socket;
  * Constant bit rate type traffic source where the server sends data packet of 800 bytes every 100 milliseconds
  */
 public class ConstantBitRate extends AbstractServerThread{
-    public ConstantBitRate(Socket socket){
+    public ConstantBitRate(Socket socket, int clientID){
         this.socket = socket;
+        this.clientID = clientID;
         setTimeType(CONSTANT_RATE_TIME);
     }
     /**

@@ -1,10 +1,12 @@
 package telecom.client.core;
 
 import telecom.client.gui.DataReceiverListener;
-import telecom.server.protocol.RequestType;
+import telecom.protocol.DecodeRequest;
+import telecom.protocol.RequestType;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
 /**
  * Created by robertzhang on 2015-03-30.
@@ -20,6 +22,7 @@ public class Client {
     private RequestType requestType;
     private double totalBytes;
     private DataReceiverListener dataReceiverListener;
+    private int clientID = -1;
 
     /**
      * Set server parameters about the server to connect to.
@@ -60,12 +63,20 @@ public class Client {
 
     /**
      * Send Specific request type command to the server.
+     * @param clientID client ID to send to the server
      * @throws IOException
      */
-    public void sendCommand() throws IOException {
+    public void sendCommand(int clientID) throws IOException {
         OutputStream outputStream = socket.getOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.write(requestType.getCommand());
+        this.clientID = clientID;
+        byte[] request = ByteBuffer.allocate(DecodeRequest.INT_SIZE).putInt(requestType.getCommand()).array();
+        byte[] id = ByteBuffer.allocate(DecodeRequest.INT_SIZE).putInt(clientID).array();
+        byte [] commandMessage = new byte[DecodeRequest.REQUEST_LENGTH];
+
+        System.arraycopy(request, 0, commandMessage, DecodeRequest.REQUEST_INDEX, request.length);
+        System.arraycopy(id,0,commandMessage,DecodeRequest.CLIENT_NAME_INDEX,id.length);
+        dataOutputStream.write(commandMessage);
     }
 
     /**
@@ -93,6 +104,11 @@ public class Client {
         dataReceiverListener.onDataReceive(totalBytes/time);
 
     }
+
+    /**
+     * Obtains the total number of bytes received in this client instance.
+     * @return Total number of bytes
+     */
     public double getTotalBytes(){return totalBytes;}
 
     /**
@@ -103,13 +119,15 @@ public class Client {
         totalBytes = 0;
         OutputStream outputStream = socket.getOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.write(RequestType.Close.getCommand());
+        byte[] request = ByteBuffer.allocate(DecodeRequest.INT_SIZE).putInt(RequestType.Close.getCommand()).array();
+        byte[] id = ByteBuffer.allocate(DecodeRequest.INT_SIZE).putInt(this.clientID).array();
+        byte [] commandMessage = new byte[DecodeRequest.REQUEST_LENGTH];
+
+        System.arraycopy(request, 0, commandMessage, DecodeRequest.REQUEST_INDEX, request.length);
+        System.arraycopy(id,0,commandMessage,DecodeRequest.CLIENT_NAME_INDEX,id.length);
+        dataOutputStream.write(commandMessage);
     }
 
-    /**
-     *
-     * @return Byte array with size defined in specific request type.
-     */
     private byte[] receiveSize(){
         switch (requestType){
             case ConstantBitRate:
@@ -130,7 +148,6 @@ public class Client {
      * @throws IOException
      */
     public void closeConnection() throws IOException {this.socket.close();}
-    public boolean isConnected(){return socket.isConnected();}
 
     /**
      * Command line version of client side implementation.
@@ -145,7 +162,7 @@ public class Client {
 
         ClientReceiverWorker clientReceiverWorker = new ClientReceiverWorker(client);
         new Thread(clientReceiverWorker).start();
-        client.sendCommand();
+        client.sendCommand(1);
     }
 
 }

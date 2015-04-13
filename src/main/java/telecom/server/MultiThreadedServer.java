@@ -49,9 +49,24 @@ public class MultiThreadedServer{
         }
     }
 
+    /**
+     * Increment instance counts hold by the main thread
+     */
     public static synchronized void addThread(){threadCount++;}
+    /**
+     * Decrement instance counts hold by the main thread
+     */
     public static synchronized void cancelThread(){if(threadCount>0)threadCount--;}
+
+    /**
+     * Obtain the number of instances running on the server
+     * @return Number of instances running
+     */
     public static synchronized int getThreadCount(){return threadCount;}
+
+    /**
+     * Prints the number of instances running on the server
+     */
     public static synchronized void displayThreadCount(){ System.out.println("Active instance: "+threadCount);
     }
 }

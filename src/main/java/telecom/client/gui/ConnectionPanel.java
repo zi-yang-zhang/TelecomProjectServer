@@ -1,7 +1,7 @@
 package telecom.client.gui;
 
 import telecom.client.core.Client;
-import telecom.server.protocol.RequestType;
+import telecom.protocol.RequestType;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -13,6 +13,10 @@ import java.text.DecimalFormat;
 
 /**
  * Created by robertzhang on 2015-04-12.
+ */
+
+/**
+ * Connection panel implementation of single client instance
  */
 public class ConnectionPanel extends JPanel implements DataReceiverListener{
     private JLabel receiveRateLabel;
@@ -47,14 +51,12 @@ public class ConnectionPanel extends JPanel implements DataReceiverListener{
 
         init();
 
-        System.out.println("panel created");
-
 
     }
 
 
-    public void init(){
-        this.setSize(300, 200);
+    private void init(){
+
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(new LineBorder(Color.black));
         FlowLayout subPanelLayout = new FlowLayout();
@@ -136,10 +138,10 @@ public class ConnectionPanel extends JPanel implements DataReceiverListener{
     }
 
 
-    public void connect() throws IOException {
+    private void connect() throws IOException {
 
         client.connect();
-        client.sendCommand();
+        client.sendCommand(Integer.parseInt(connectionName.getText()));
         receiverGuiWorker = new ClientReceiverGuiWorker(client);
         updateGuiWorker = new UpdateGuiWorker(client);
         updateGuiWorker.execute();
@@ -149,7 +151,7 @@ public class ConnectionPanel extends JPanel implements DataReceiverListener{
         connectionTypeLabel.setText(requestType.name() + ": Connected");
 
     }
-    public void disconnect() throws IOException {
+    private void disconnect() throws IOException {
         receiverGuiWorker.terminate();
         receiverGuiWorker.cancel(true);
         updateGuiWorker.terminate();

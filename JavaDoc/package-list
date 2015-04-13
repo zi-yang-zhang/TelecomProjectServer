@@ -1,6 +1,6 @@
 telecom.client.core
 telecom.client.gui
+telecom.protocol
 telecom.server
 telecom.server.leakyBucket
-telecom.server.protocol
 telecom.server.source
