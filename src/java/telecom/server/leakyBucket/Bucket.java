@@ -1,6 +1,8 @@
 package telecom.server.leakyBucket;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -47,18 +49,26 @@ public class Bucket extends LinkedList<Byte> {
      * @return data packet leaked from the bucket.
      */
     public byte[] leak(){
-        byte[] packet = new byte[leakRate/10];
+        ArrayList<Byte> packet = new ArrayList<Byte>();
         for(int i = 0; i < leakRate/10;i++){
             try {
-                packet[i] = this.pop();
+                packet.add(this.pop()) ;
             } catch (NoSuchElementException e) {
                 System.out.println("Bucket empty");
-                return packet;
+                return toByteArray(packet);
             }
         }
-        return packet;
+        Byte[] array = new Byte[packet.size()];
+        return toByteArray(packet);
     }
-
+    public static byte[] toByteArray(List<Byte> in) {
+        final int n = in.size();
+        byte ret[] = new byte[n];
+        for (int i = 0; i < n; i++) {
+            ret[i] = in.get(i);
+        }
+        return ret;
+    }
 
     public int getBucketSize(){return bucketSize;}
 

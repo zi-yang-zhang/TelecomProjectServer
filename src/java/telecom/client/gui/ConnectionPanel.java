@@ -128,6 +128,11 @@ public class ConnectionPanel extends JPanel implements DataReceiverListener{
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    disconnect();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
                 Container parent = getParent();
                 ((ClientGui) getTopLevelAncestor()).removeEntry(connectionName.getText());
                 parent.remove(ConnectionPanel.this);
